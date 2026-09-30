@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Card from '../../components/Card';
 import { kajianApi } from '../../api/kajianApi';
 import { absensiApi } from '../../api/absensiApi';
-import { Download, Calendar, Filter } from 'lucide-react';
+import { Download, Calendar } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import useNotification from '../../hooks/useNotification';
@@ -43,7 +43,6 @@ const getStatusClassName = (status) => ({
 const AdminLaporan = () => {
   const [filterDate, setFilterDate] = useState('');
   const [filterKajian, setFilterKajian] = useState('');
-  const [reportType, setReportType] = useState('kehadiran');
   const [kajianList, setKajianList] = useState([]);
   const [absensiData, setAbsensiData] = useState([]);
   const [loadingKajian, setLoadingKajian] = useState(true);
@@ -129,13 +128,6 @@ const AdminLaporan = () => {
     }
   };
 
-  const handleGenerateReport = () => {
-    if (filterKajian === 'all') {
-      fetchAllAbsensi();
-    } else if (filterKajian) {
-      fetchAbsensiByKajian(filterKajian);
-    }
-  };
 
   const handleDownloadPDF = () => {
     if (absensiData.length === 0) {
@@ -238,17 +230,7 @@ const AdminLaporan = () => {
 
       <Card className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Laporan</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Jenis Laporan</label>
-            <select
-              value={reportType}
-              onChange={(e) => setReportType(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="kehadiran">Laporan Kehadiran</option>
-            </select>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-gray-700 font-medium mb-2">Tanggal</label>
             <div className="relative">
@@ -264,7 +246,6 @@ const AdminLaporan = () => {
           <div>
             <label className="block text-gray-700 font-medium mb-2">Kajian</label>
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <select
                 value={filterKajian}
                 onChange={(e) => setFilterKajian(e.target.value)}
@@ -281,14 +262,6 @@ const AdminLaporan = () => {
           </div>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={handleGenerateReport}
-            disabled={!filterKajian || loadingAbsensi}
-            className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            <Filter size={20} />
-            Generate Laporan
-          </button>
           <button
             onClick={handleDownloadPDF}
             disabled={absensiData.length === 0}

@@ -20,6 +20,7 @@ const JamaahRegistrasiWajah = () => {
   const canvasRef = useRef(null);
   const cameraContainerRef = useRef(null);
   const detectionIntervalRef = useRef(null);
+  const preprocessingCanvasRef = useRef(null);
 
   const [isCapturing, setIsCapturing] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -34,6 +35,65 @@ const JamaahRegistrasiWajah = () => {
   // Status wajah
   const [faceStatus, setFaceStatus] = useState('Mencari wajah...');
   const [faceBox, setFaceBox] = useState(null);
+
+  // ==========================================
+  // PREPROCESSING CONSTANTS
+  // ==========================================
+  const PREPROCESSING_BRIGHTNESS = 30;
+  const PREPROCESSING_CONTRAST = 1.15;
+
+  // ==========================================
+  // PREPROCESSING FUNCTION
+  // ==========================================
+  const applyPreprocessing = (video) => {
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      return null;
+    }
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    // Reuse or create preprocessing canvas
+    if (!preprocessingCanvasRef.current) {
+      preprocessingCanvasRef.current = document.createElement('canvas');
+    }
+    const canvas = preprocessingCanvasRef.current;
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, width, height);
+
+    // Get image data
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+
+    // Apply brightness and contrast
+    const brightness = PREPROCESSING_BRIGHTNESS;
+    const contrast = PREPROCESSING_CONTRAST;
+    const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Apply brightness
+      let r = data[i] + brightness;
+      let g = data[i + 1] + brightness;
+      let b = data[i + 2] + brightness;
+
+      // Apply contrast
+      r = factor * (r - 128) + 128;
+      g = factor * (g - 128) + 128;
+      b = factor * (b - 128) + 128;
+
+      // Clamp values
+      data[i] = Math.max(0, Math.min(255, r));
+      data[i + 1] = Math.max(0, Math.min(255, g));
+      data[i + 2] = Math.max(0, Math.min(255, b));
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    return canvas;
+  };
 
   // ==========================================
   // HELPER: GET VIDEO RENDER METRICS
@@ -239,6 +299,14 @@ const JamaahRegistrasiWajah = () => {
 
             // Face detection
 
+            // Apply preprocessing to improve detection in low light
+            const preprocessedCanvas = applyPreprocessing(video);
+            if (!preprocessedCanvas) {
+              setFaceStatus('Mempersiapkan kamera...');
+              detectionInProgress = false;
+              return;
+            }
+
             const detectionOptions =
               new faceapi.TinyFaceDetectorOptions({
                 inputSize: 416,
@@ -247,10 +315,11 @@ const JamaahRegistrasiWajah = () => {
 
             const results = await faceapi
               .detectAllFaces(
-                video,
+                preprocessedCanvas,
                 detectionOptions
               )
               .withFaceLandmarks();
+
             // Draw custom overlay
 
             if (canvasRef.current) {
@@ -435,7 +504,7 @@ const JamaahRegistrasiWajah = () => {
 
             const elapsedTime = Date.now() - faceDetectedAt;
 
-            const requiredTime = 5000;
+            const requiredTime = 1000;
 
             const remainingTime = Math.max(
               0,
@@ -863,6 +932,8 @@ const JamaahRegistrasiWajah = () => {
                   )}
 
               </div>
+
+
 
               {/* Buttons */}
 

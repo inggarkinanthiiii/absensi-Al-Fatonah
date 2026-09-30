@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://absensi-al-fatonah-production.up.railway.app/api',
+  baseURL: 'http://localhost:5000/api',
+
   headers: {
     'Content-Type': 'application/json',
   },
@@ -27,7 +28,9 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only redirect to login on 401 if it's not a login request itself
+    // This prevents redirecting when login fails with wrong password
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';

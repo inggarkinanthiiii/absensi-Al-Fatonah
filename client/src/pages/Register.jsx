@@ -37,6 +37,7 @@ const Register = () => {
     }
 
     if (formData.password.length < 6) {
+      showError('Password minimal 6 karakter');
       setError('Password minimal 6 karakter');
       return;
     }
@@ -52,6 +53,7 @@ const Register = () => {
     });
 
     if (result.success) {
+      showSuccess('Registrasi berhasil! Silakan login.');
       navigate('/login');
       setSuccess(true);
     } else {
@@ -72,13 +74,14 @@ const Register = () => {
         {!success ? (
           <>
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
+              <div className="w-50 h-50 mx-auto mb-4 flex items-center justify-center">
+                <img
+                  src="assets/alfatonah.png"
+                  alt="Logo FatonahAttend"
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Masjid Al-Fatonah</h1>
-              <p className="text-gray-500 mt-1 text-sm">Registrasi Jamaah Baru</p>
+              <h1 className="text-2xl font-bold text-gray-900">Registrasi Akun</h1>
             </div>
 
             <form onSubmit={handleSubmit}>

@@ -167,6 +167,11 @@ const AdminKajian = () => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationErrorMessage, setLocationErrorMessage] = useState('');
   const [formError, setFormError] = useState('');
+  const [tempLocation, setTempLocation] = useState({
+    lokasi: '',
+    latitude: null,
+    longitude: null
+  });
   const { showSuccess, showError } = useNotification();
 
   useEffect(() => {
@@ -270,34 +275,58 @@ const AdminKajian = () => {
     // Validation
     if (!formData.judul.trim()) {
       setFormError('Judul kajian wajib diisi');
+      showError('Judul kajian wajib diisi');
+      return;
+    }
+    if (!formData.pemateri.trim()) {
+      setFormError('Pemateri wajib diisi');
+      showError('Pemateri wajib diisi');
       return;
     }
     if (!formData.tanggal) {
       setFormError('Tanggal wajib diisi');
+      showError('Tanggal wajib diisi');
       return;
     }
     if (!formData.jamMulai) {
       setFormError('Jam mulai wajib diisi');
+      showError('Jam mulai wajib diisi');
+      return;
+    }
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(formData.jamMulai)) {
+      setFormError('Format jam mulai tidak valid (HH:mm)');
+      showError('Format jam mulai tidak valid (HH:mm)');
       return;
     }
     if (!formData.jamSelesai) {
       setFormError('Jam selesai wajib diisi');
+      showError('Jam selesai wajib diisi');
+      return;
+    }
+    if (!timeRegex.test(formData.jamSelesai)) {
+      setFormError('Format jam selesai tidak valid (HH:mm)');
+      showError('Format jam selesai tidak valid (HH:mm)');
       return;
     }
     if (formData.jamSelesai <= formData.jamMulai) {
       setFormError('Jam selesai harus lebih dari jam mulai');
+      showError('Jam selesai harus lebih dari jam mulai');
       return;
     }
     if (!formData.lokasi.trim()) {
       setFormError('Lokasi wajib diisi');
+      showError('Lokasi wajib diisi');
       return;
     }
     if (!Number.isFinite(Number(formData.latitude)) || !Number.isFinite(Number(formData.longitude))) {
       setFormError('Koordinat lokasi wajib ditentukan');
+      showError('Koordinat lokasi wajib ditentukan');
       return;
     }
     if (!Number.isFinite(Number(formData.radius)) || Number(formData.radius) < 1) {
       setFormError('Radius harus berupa angka minimal 1 meter');
+      showError('Radius harus berupa angka minimal 1 meter');
       return;
     }
 
@@ -312,7 +341,9 @@ const AdminKajian = () => {
       showSuccess(isEditMode ? 'Data kajian berhasil diperbarui' : 'Kajian baru berhasil ditambahkan');
     } catch (error) {
       console.error('Error saving kajian:', error);
-      setFormError(error.response?.data?.message || 'Gagal menyimpan kajian');
+      const errorMessage = error.response?.data?.message || 'Gagal menyimpan kajian';
+      setFormError(errorMessage);
+      showError(errorMessage);
     }
   };
 
@@ -757,6 +788,13 @@ const AdminKajian = () => {
                 <p>Longitude: {mapPoint.lng}</p>
               </div>
             )}
+            <button
+              type="button"
+              onClick={() => setIsLocationPickerOpen(false)}
+              className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              Pilih Lokasi Ini
+            </button>
           </div>
         </div>
       )}

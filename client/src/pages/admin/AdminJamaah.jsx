@@ -119,34 +119,57 @@ const AdminJamaah = () => {
     // Validation
     if (!newJamaah.nama.trim()) {
       setFormError('Nama wajib diisi');
+      showError('Nama wajib diisi');
       return;
     }
     if (!newJamaah.email.trim()) {
       setFormError('Email wajib diisi');
+      showError('Email wajib diisi');
       return;
     }
     if (!newJamaah.email.includes('@')) {
       setFormError('Format email tidak valid');
+      showError('Format email tidak valid');
       return;
     }
     if (!newJamaah.telepon.trim()) {
       setFormError('Nomor telepon wajib diisi');
+      showError('Nomor telepon wajib diisi');
+      return;
+    }
+    if (!/^[0-9]+$/.test(newJamaah.telepon)) {
+      setFormError('Nomor telepon hanya boleh berisi angka');
+      showError('Nomor telepon hanya boleh berisi angka');
+      return;
+    }
+    if (newJamaah.telepon.length < 10) {
+      setFormError('Nomor telepon minimal 10 digit');
+      showError('Nomor telepon minimal 10 digit');
+      return;
+    }
+    if (newJamaah.telepon.length > 15) {
+      setFormError('Nomor telepon maksimal 15 digit');
+      showError('Nomor telepon maksimal 15 digit');
       return;
     }
     if (!newJamaah.alamat.trim()) {
       setFormError('Alamat wajib diisi');
+      showError('Alamat wajib diisi');
       return;
     }
     if (modalAction === 'add' && !newJamaah.password) {
       setFormError('Password wajib diisi');
+      showError('Password wajib diisi');
       return;
     }
     if (newJamaah.password && newJamaah.password.length < 6) {
       setFormError('Password minimal 6 karakter');
+      showError('Password minimal 6 karakter');
       return;
     }
     if (newJamaah.password !== newJamaah.confirmPassword) {
       setFormError('Konfirmasi password tidak cocok');
+      showError('Konfirmasi password tidak cocok');
       return;
     }
 
@@ -192,7 +215,9 @@ const AdminJamaah = () => {
       showSuccess(modalAction === 'edit' ? 'Data jamaah berhasil diperbarui' : 'Jamaah baru berhasil ditambahkan');
     } catch (error) {
       console.error('Error saving jamaah:', error);
-      setFormError(error.response?.data?.message || 'Gagal menyimpan data jamaah');
+      const errorMessage = error.response?.data?.message || 'Gagal menyimpan data jamaah';
+      setFormError(errorMessage);
+      showError(errorMessage);
     }
   };
 

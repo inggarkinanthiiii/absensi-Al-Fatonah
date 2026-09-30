@@ -38,20 +38,37 @@ const JamaahSidebar = ({ isOpen, onClose }) => {
     },
   ];
 
-  return (
-    <>
-      {/* Sidebar Desktop */}
-      <div className="hidden lg:flex lg:static lg:w-64 lg:min-h-screen lg:flex-col bg-gradient-to-b from-primary-900 to-primary-800 text-white">
+return (
+  <>
+    {/* Sidebar Desktop */}
+    <div className="hidden lg:flex lg:static lg:w-64 lg:min-h-screen lg:flex-col bg-gradient-to-b from-primary-900 to-primary-800 text-white">
 
-        {/* Header */}
-        <div className="p-6 border-b border-primary-700/50">
-          <h1 className="text-xl font-bold tracking-tight">
-            Masjid Al-Fatonah
-          </h1>
-          <p className="text-xs text-primary-300 mt-1 font-medium">
-            Portal Jamaah
-          </p>
-        </div>
+      {/* Header */}
+      <div className="p-6 border-b border-primary-700/50">
+        <div className="flex items-center gap-3">
+
+          {/* Logo */}
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center">
+            <img
+              src="/assets/aye.png"
+              alt="FatonahAttend"
+              className="w-14 h-14 object-contain"
+            />
+          </div>
+
+          {/* Nama Masjid */}
+          <div>
+            <h1 className="text-lg font-bold text-white">
+              Al-Fatonah
+            </h1>
+
+            <p className="text-xs text-primary-300 mt-1 font-medium">
+              Portal Jamaah
+            </p>
+          </div>
+          </div>
+          </div>
+
 
         {/* Menu */}
         <nav className="p-4 space-y-1">
@@ -64,8 +81,8 @@ const JamaahSidebar = ({ isOpen, onClose }) => {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${isActive
-                    ? 'bg-white/10 text-white shadow-lg'
-                    : 'text-primary-200 hover:bg-white/5 hover:text-white'
+                  ? 'bg-white/10 text-white shadow-lg'
+                  : 'text-primary-200 hover:bg-white/5 hover:text-white'
                   }`}
               >
                 <Icon size={18} />
@@ -91,8 +108,8 @@ const JamaahSidebar = ({ isOpen, onClose }) => {
                 to={item.path}
                 onClick={onClose}
                 className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-xl min-w-16 transition-all duration-200 ${isActive
-                    ? 'bg-white/10 text-white'
-                    : 'text-primary-300'
+                  ? 'bg-white/10 text-white'
+                  : 'text-primary-300'
                   }`}
               >
                 <Icon size={20} />

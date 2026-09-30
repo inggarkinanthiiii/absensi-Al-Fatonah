@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
     "absensi",
@@ -32,6 +32,9 @@
     "socket.io": "^4.6.0"
   },
   "devDependencies": {
+    "@swc/core": "^1.16.12",
+    "@swc/jest": "^0.2.39",
+    "jest": "^30.5.2",
     "nodemon": "^3.0.1"
   }
 }

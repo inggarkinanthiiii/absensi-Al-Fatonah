@@ -1,14 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
-  CheckSquare, 
-  FileText, 
-  BarChart3, 
-  Bell, 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  CheckSquare,
+  FileText,
+  BarChart3,
+  Bell,
   User,
-  X 
+  X
 } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 
@@ -31,27 +31,50 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
           onClick={onClose}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-primary-900 to-primary-800 min-h-screen text-white transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
+      <div className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-primary-900 to-primary-800 min-h-screen text-white transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}>
         <div className="p-6 border-b border-primary-700/50 flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Masjid Al-Fatonah</h1>
-            <p className="text-xs text-primary-300 mt-1 font-medium">Admin Panel</p>
+
+          {/* Logo + Nama */}
+          <div className="flex items-center gap-3">
+
+            {/* Logo */}
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center">
+              <img
+                src="/assets/aye.png"
+                alt="FatonahAttend"
+                className="w-14 h-14 object-contain"
+              />
+            </div>
+
+            {/* Nama */}
+            <div>
+              <h1 className="text-lg font-bold text-white">
+                Al-Fatonah
+              </h1>
+
+              <p className="text-xs text-primary-300 mt-1 font-medium">
+                Admin Panel
+              </p>
+            </div>
+
           </div>
+
+          {/* Tombol Close Mobile */}
           <button
             onClick={onClose}
             className="lg:hidden text-primary-200 hover:text-white transition-colors"
           >
             <X size={20} />
           </button>
+
         </div>
         <nav className="p-4 space-y-1">
           {menuItems.map((item) => {
@@ -62,11 +85,10 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${isActive
                     ? 'bg-white/10 text-white shadow-lg'
                     : 'text-primary-200 hover:bg-white/5 hover:text-white'
-                }`}
+                  }`}
               >
                 <div className="relative">
                   <Icon size={18} />
