@@ -1,8 +1,11 @@
 import { isWithinRadius } from '../../utils/distanceCalculator.js';
 
+// Menguji apakah lokasi berada di dalam radius yang ditentukan.
 describe('isWithinRadius', () => {
-  describe('Normal cases', () => {
-    test('should return true when location is inside radius', () => {
+  // Menguji keputusan fungsi untuk lokasi yang umum berada di dalam atau luar radius.
+  describe('Kasus normal', () => {
+    // Menguji bahwa lokasi di dalam radius dinyatakan berada dalam area.
+    test('menyatakan lokasi di dalam radius berada dalam area', () => {
       // Monas location
       const userLat = -6.1754;
       const userLon = 106.8272;
@@ -14,7 +17,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should return true when location is exactly at the center', () => {
+    // Menguji bahwa titik pusat termasuk di dalam radius.
+    test('menyatakan titik pusat berada dalam radius', () => {
       const lat = -6.2088;
       const lon = 106.8456;
       const radius = 50;
@@ -23,7 +27,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should return true when location is within but not at center', () => {
+    // Menguji bahwa lokasi selain titik pusat tetap diterima jika masih dalam radius.
+    test('menerima lokasi yang berada dalam radius tetapi bukan di titik pusat', () => {
       // User is 50 meters away from kajian location, radius is 100 meters
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
@@ -35,7 +40,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should return false when location is outside radius', () => {
+    // Menguji bahwa lokasi di luar radius dinyatakan berada di luar area.
+    test('menyatakan lokasi di luar radius berada di luar area', () => {
       // User is 150 meters away from kajian location, radius is 100 meters
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
@@ -47,7 +53,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(false);
     });
 
-    test('should return false when location is far outside radius', () => {
+    // Menguji bahwa lokasi yang sangat jauh ditolak dari area radius.
+    test('menolak lokasi yang jauh di luar radius', () => {
       // Monas to Bundaran HI (approximately 1.5 km), radius is 100 meters
       const userLat = -6.1754;
       const userLon = 106.8272;
@@ -60,8 +67,10 @@ describe('isWithinRadius', () => {
     });
   });
 
-  describe('Edge cases - boundary conditions', () => {
-    test('should return true when location is exactly at radius boundary', () => {
+  // Menguji kondisi lokasi yang berada dekat dengan batas radius.
+  describe('Kasus khusus - kondisi batas radius', () => {
+    // Menguji hasil fungsi untuk lokasi yang diperkirakan tepat pada batas radius.
+    test('menghasilkan nilai boolean untuk lokasi yang diperkirakan tepat di batas radius', () => {
       // User is exactly at the radius distance
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
@@ -76,7 +85,8 @@ describe('isWithinRadius', () => {
       expect(typeof result).toBe('boolean');
     });
 
-    test('should return true when location is just inside radius', () => {
+    // Menguji bahwa lokasi sedikit di dalam batas radius diterima.
+    test('menerima lokasi yang sedikit di dalam radius', () => {
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
       const userLat = -6.20965; // ~99m north (just inside)
@@ -87,7 +97,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should return false when location is just outside radius', () => {
+    // Menguji bahwa lokasi sedikit di luar batas radius ditolak.
+    test('menolak lokasi yang sedikit di luar radius', () => {
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
       const userLat = -6.20975; // ~101m north (just outside)
@@ -99,8 +110,10 @@ describe('isWithinRadius', () => {
     });
   });
 
-  describe('Edge cases - different radius values', () => {
-    test('should work with very small radius (1 meter)', () => {
+  // Menguji fungsi dengan nilai radius yang berbeda.
+  describe('Kasus khusus - variasi nilai radius', () => {
+    // Menguji fungsi saat radius yang digunakan sangat kecil.
+    test('memproses radius yang sangat kecil (1 meter)', () => {
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
       const userLat = -6.2088001; // ~0.01m north
@@ -111,7 +124,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should work with large radius (10 km)', () => {
+    // Menguji fungsi saat radius yang digunakan cukup besar.
+    test('memproses radius yang besar (10 km)', () => {
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
       const userLat = -6.2088;
@@ -125,7 +139,8 @@ describe('isWithinRadius', () => {
       expect(typeof result).toBe('boolean');
     });
 
-    test('should return true when radius is 0 and location is at center', () => {
+    // Menguji bahwa titik pusat diterima ketika radius bernilai nol.
+    test('menerima titik pusat ketika radius bernilai 0', () => {
       const lat = -6.2088;
       const lon = 106.8456;
       const radius = 0;
@@ -134,7 +149,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should return false when radius is 0 and location is not at center', () => {
+    // Menguji bahwa lokasi berbeda ditolak ketika radius bernilai nol.
+    test('menolak lokasi selain titik pusat ketika radius bernilai 0', () => {
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
       const userLat = -6.2089;
@@ -146,8 +162,10 @@ describe('isWithinRadius', () => {
     });
   });
 
-  describe('Edge cases - coordinate boundaries', () => {
-    test('should handle coordinates at equator', () => {
+  // Menguji koordinat pada beberapa batas wilayah geografis.
+  describe('Kasus khusus - batas koordinat', () => {
+    // Menguji lokasi dekat khatulistiwa dalam radius.
+    test('memproses koordinat di khatulistiwa', () => {
       const userLat = 0;
       const userLon = 0.001;
       const kajianLat = 0;
@@ -158,7 +176,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should handle negative coordinates', () => {
+    // Menguji lokasi dengan koordinat negatif dalam radius.
+    test('memproses koordinat negatif', () => {
       const userLat = -10.0001;
       const userLon = -100.0001;
       const kajianLat = -10;
@@ -169,7 +188,8 @@ describe('isWithinRadius', () => {
       expect(result).toBe(true);
     });
 
-    test('should handle coordinates at antimeridian', () => {
+    // Menguji lokasi dekat garis tanggal internasional dalam radius.
+    test('memproses koordinat di garis tanggal internasional', () => {
       const userLat = 0;
       const userLon = 179.999;
       const kajianLat = 0;
@@ -181,8 +201,10 @@ describe('isWithinRadius', () => {
     });
   });
 
-  describe('Edge cases - invalid coordinates (no validation in implementation)', () => {
-    test('should handle coordinates beyond valid range', () => {
+  // Menguji koordinat di luar rentang umum tanpa mengharapkan validasi masukan.
+  describe('Kasus khusus - koordinat tidak valid (implementasi tidak melakukan validasi)', () => {
+    // Menguji bahwa koordinat di luar rentang tetap memberikan hasil boolean.
+    test('memproses koordinat di luar rentang valid', () => {
       // Implementation does not validate, so it will calculate anyway
       const userLat = 100;
       const userLon = 0;
@@ -194,14 +216,17 @@ describe('isWithinRadius', () => {
       expect(typeof result).toBe('boolean');
     });
 
-    test('should handle zero coordinates', () => {
+    // Menguji bahwa koordinat nol pada titik yang sama termasuk dalam radius.
+    test('memproses koordinat nol', () => {
       const result = isWithinRadius(0, 0, 0, 0, 100);
       expect(result).toBe(true);
     });
   });
 
-  describe('Special cases', () => {
-    test('should handle diagonal distance', () => {
+  // Menguji lokasi dengan perubahan koordinat pada satu atau dua arah.
+  describe('Kasus khusus', () => {
+    // Menguji hasil untuk lokasi diagonal yang diperkirakan masih dalam radius.
+    test('memproses jarak diagonal yang diperkirakan masih dalam radius', () => {
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
       const userLat = -6.2078; // ~100m north
@@ -214,7 +239,8 @@ describe('isWithinRadius', () => {
       expect(typeof result).toBe('boolean');
     });
 
-    test('should return false for diagonal distance outside radius', () => {
+    // Menguji bahwa lokasi diagonal di luar radius dinyatakan berada di luar area.
+    test('menolak jarak diagonal yang berada di luar radius', () => {
       const kajianLat = -6.2088;
       const kajianLon = 106.8456;
       const userLat = -6.2078; // ~100m north

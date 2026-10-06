@@ -1,4 +1,4 @@
-// Mock for face-api.js
+import { jest } from '@jest/globals';
 export const nets = {
   tinyFaceDetector: {
     loadFromDisk: jest.fn(),

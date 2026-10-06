@@ -1,5 +1,7 @@
+import { jest } from '@jest/globals';
 import { validateRegister, validateLogin } from '../../middlewares/validationMiddleware.js';
 
+// Menguji aturan validasi untuk proses registrasi.
 describe('validateRegister', () => {
   let req, res, next;
 
@@ -14,8 +16,10 @@ describe('validateRegister', () => {
     next = jest.fn();
   });
 
-  describe('Normal cases', () => {
-    test('should call next() when all fields are valid', () => {
+  // Menguji registrasi dengan data yang memenuhi aturan validasi.
+  describe('Kasus normal', () => {
+    // Menguji bahwa proses diteruskan ketika seluruh data wajib valid.
+    test('meneruskan proses ketika seluruh data wajib valid', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -31,7 +35,8 @@ describe('validateRegister', () => {
       expect(res.json).not.toHaveBeenCalled();
     });
 
-    test('should call next() with minimal valid data', () => {
+    // Menguji bahwa data registrasi minimal yang valid dapat diteruskan.
+    test('meneruskan proses dengan data minimal yang valid', () => {
       req.body = {
         nama: 'A',
         email: 'a@b.c',
@@ -45,7 +50,8 @@ describe('validateRegister', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    test('should call next() with password exactly 6 characters', () => {
+    // Menguji bahwa password dengan panjang tepat enam karakter diterima.
+    test('menerima password dengan panjang tepat 6 karakter', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -60,8 +66,10 @@ describe('validateRegister', () => {
     });
   });
 
-  describe('Error cases - missing required fields', () => {
-    test('should return error when nama is missing', () => {
+  // Menguji penolakan ketika data registrasi wajib tidak tersedia atau kosong.
+  describe('Kasus error - data wajib tidak diisi', () => {
+    // Menguji penolakan registrasi ketika nama tidak diisi.
+    test('menolak registrasi ketika nama tidak diisi', () => {
       req.body = {
         email: 'john@example.com',
         telepon: '1234567890',
@@ -76,7 +84,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when email is missing', () => {
+    // Menguji penolakan registrasi ketika email tidak diisi.
+    test('menolak registrasi ketika email tidak diisi', () => {
       req.body = {
         nama: 'John Doe',
         telepon: '1234567890',
@@ -91,7 +100,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when telepon is missing', () => {
+    // Menguji penolakan registrasi ketika nomor telepon tidak diisi.
+    test('menolak registrasi ketika telepon tidak diisi', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -106,7 +116,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when alamat is missing', () => {
+    // Menguji penolakan registrasi ketika alamat tidak diisi.
+    test('menolak registrasi ketika alamat tidak diisi', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -121,7 +132,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when password is missing', () => {
+    // Menguji penolakan registrasi ketika password tidak diisi.
+    test('menolak registrasi ketika password tidak diisi', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -136,7 +148,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when all fields are missing', () => {
+    // Menguji penolakan registrasi ketika semua data tidak diisi.
+    test('menolak registrasi ketika seluruh data tidak diisi', () => {
       req.body = {};
 
       validateRegister(req, res, next);
@@ -146,7 +159,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when field is empty string', () => {
+    // Menguji penolakan registrasi ketika salah satu data berupa string kosong.
+    test('menolak registrasi ketika salah satu data berupa string kosong', () => {
       req.body = {
         nama: '',
         email: 'john@example.com',
@@ -162,7 +176,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when field is null', () => {
+    // Menguji penolakan registrasi ketika salah satu data bernilai null.
+    test('menolak registrasi ketika salah satu data bernilai null', () => {
       req.body = {
         nama: null,
         email: 'john@example.com',
@@ -178,7 +193,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Semua field wajib diisi' });
     });
 
-    test('should return error when field is undefined', () => {
+    // Menguji penolakan registrasi ketika salah satu data bernilai undefined.
+    test('menolak registrasi ketika salah satu data bernilai undefined', () => {
       req.body = {
         nama: undefined,
         email: 'john@example.com',
@@ -195,8 +211,10 @@ describe('validateRegister', () => {
     });
   });
 
-  describe('Error cases - password validation', () => {
-    test('should return error when password is less than 6 characters', () => {
+  // Menguji batas panjang password yang diterima saat registrasi.
+  describe('Kasus error - validasi password', () => {
+    // Menguji penolakan password yang panjangnya kurang dari enam karakter.
+    test('menolak password yang panjangnya kurang dari 6 karakter', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -212,7 +230,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Password minimal 6 karakter' });
     });
 
-    test('should return error when password is 5 characters', () => {
+    // Menguji penolakan password yang panjangnya lima karakter.
+    test('menolak password yang panjangnya 5 karakter', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -228,7 +247,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Password minimal 6 karakter' });
     });
 
-    test('should return error when password is 1 character', () => {
+    // Menguji penolakan password yang hanya terdiri dari satu karakter.
+    test('menolak password yang hanya terdiri dari 1 karakter', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -244,7 +264,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Password minimal 6 karakter' });
     });
 
-    test('should return error when password is empty string', () => {
+    // Menguji bahwa password kosong ditolak sebagai data wajib yang tidak diisi.
+    test('menolak password berupa string kosong', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -262,8 +283,10 @@ describe('validateRegister', () => {
     });
   });
 
-  describe('Error cases - email validation', () => {
-    test('should return error when email format is invalid (no @)', () => {
+  // Menguji format email yang ditolak dan variasi format yang diterima.
+  describe('Kasus error - validasi email', () => {
+    // Menguji penolakan email yang tidak memiliki tanda @.
+    test('menolak email tanpa tanda @', () => {
       req.body = {
         nama: 'John Doe',
         email: 'invalidemail',
@@ -279,7 +302,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email format tidak valid' });
     });
 
-    test('should return error when email format is invalid (no domain)', () => {
+    // Menguji penolakan email yang tidak memiliki nama domain setelah tanda @.
+    test('menolak email tanpa domain', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@',
@@ -295,7 +319,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email format tidak valid' });
     });
 
-    test('should return error when email format is invalid (no TLD)', () => {
+    // Menguji penolakan email yang tidak memiliki ekstensi domain.
+    test('menolak email tanpa TLD', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example',
@@ -311,7 +336,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email format tidak valid' });
     });
 
-    test('should return error when email contains spaces', () => {
+    // Menguji penolakan email yang mengandung spasi.
+    test('menolak email yang mengandung spasi', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john @example.com',
@@ -327,7 +353,8 @@ describe('validateRegister', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email format tidak valid' });
     });
 
-    test('should accept valid email with subdomain', () => {
+    // Menguji penerimaan email dengan subdomain yang valid.
+    test('menerima email valid dengan subdomain', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@mail.example.com',
@@ -341,7 +368,8 @@ describe('validateRegister', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    test('should accept valid email with numbers', () => {
+    // Menguji penerimaan email yang memuat angka.
+    test('menerima email valid yang mengandung angka', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john123@example.com',
@@ -355,7 +383,8 @@ describe('validateRegister', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    test('should accept valid email with special characters in local part', () => {
+    // Menguji penerimaan email dengan karakter khusus pada bagian nama.
+    test('menerima email valid dengan karakter khusus pada bagian nama', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john.doe+test@example.com',
@@ -370,8 +399,10 @@ describe('validateRegister', () => {
     });
   });
 
-  describe('Edge cases', () => {
-    test('should handle very long password', () => {
+  // Menguji data registrasi valid dengan nilai yang tidak umum.
+  describe('Kasus khusus', () => {
+    // Menguji bahwa password yang sangat panjang tetap dapat diterima.
+    test('menerima password yang sangat panjang', () => {
       req.body = {
         nama: 'John Doe',
         email: 'john@example.com',
@@ -385,7 +416,8 @@ describe('validateRegister', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    test('should handle special characters in nama', () => {
+    // Menguji bahwa nama dengan karakter khusus tetap dapat diterima.
+    test('menerima nama yang mengandung karakter khusus', () => {
       req.body = {
         nama: 'John Doe ÄÖÜ',
         email: 'john@example.com',
@@ -401,6 +433,7 @@ describe('validateRegister', () => {
   });
 });
 
+// Menguji aturan validasi untuk proses login.
 describe('validateLogin', () => {
   let req, res, next;
 
@@ -415,8 +448,10 @@ describe('validateLogin', () => {
     next = jest.fn();
   });
 
-  describe('Normal cases', () => {
-    test('should call next() when email and password are valid', () => {
+  // Menguji proses login dengan email dan password yang tersedia.
+  describe('Kasus normal', () => {
+    // Menguji bahwa login diteruskan ketika email dan password diisi.
+    test('meneruskan proses ketika email dan password terisi', () => {
       req.body = {
         email: 'john@example.com',
         password: 'password123',
@@ -429,7 +464,8 @@ describe('validateLogin', () => {
       expect(res.json).not.toHaveBeenCalled();
     });
 
-    test('should call next() with minimal valid data', () => {
+    // Menguji bahwa data login minimal dapat diteruskan.
+    test('meneruskan proses dengan data minimal yang valid', () => {
       req.body = {
         email: 'a@b.c',
         password: '1',
@@ -441,8 +477,10 @@ describe('validateLogin', () => {
     });
   });
 
-  describe('Error cases - missing fields', () => {
-    test('should return error when email is missing', () => {
+  // Menguji penolakan login ketika email atau password tidak tersedia.
+  describe('Kasus error - data wajib tidak diisi', () => {
+    // Menguji penolakan login ketika email tidak diisi.
+    test('menolak login ketika email tidak diisi', () => {
       req.body = {
         password: 'password123',
       };
@@ -454,7 +492,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when password is missing', () => {
+    // Menguji penolakan login ketika password tidak diisi.
+    test('menolak login ketika password tidak diisi', () => {
       req.body = {
         email: 'john@example.com',
       };
@@ -466,7 +505,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when both email and password are missing', () => {
+    // Menguji penolakan login ketika email dan password tidak diisi.
+    test('menolak login ketika email dan password tidak diisi', () => {
       req.body = {};
 
       validateLogin(req, res, next);
@@ -476,7 +516,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when email is empty string', () => {
+    // Menguji penolakan login ketika email berupa string kosong.
+    test('menolak login ketika email berupa string kosong', () => {
       req.body = {
         email: '',
         password: 'password123',
@@ -489,7 +530,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when password is empty string', () => {
+    // Menguji penolakan login ketika password berupa string kosong.
+    test('menolak login ketika password berupa string kosong', () => {
       req.body = {
         email: 'john@example.com',
         password: '',
@@ -502,7 +544,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when email is null', () => {
+    // Menguji penolakan login ketika email bernilai null.
+    test('menolak login ketika email bernilai null', () => {
       req.body = {
         email: null,
         password: 'password123',
@@ -515,7 +558,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when password is null', () => {
+    // Menguji penolakan login ketika password bernilai null.
+    test('menolak login ketika password bernilai null', () => {
       req.body = {
         email: 'john@example.com',
         password: null,
@@ -528,7 +572,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when email is undefined', () => {
+    // Menguji penolakan login ketika email bernilai undefined.
+    test('menolak login ketika email bernilai undefined', () => {
       req.body = {
         email: undefined,
         password: 'password123',
@@ -541,7 +586,8 @@ describe('validateLogin', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Email dan password wajib diisi' });
     });
 
-    test('should return error when password is undefined', () => {
+    // Menguji penolakan login ketika password bernilai undefined.
+    test('menolak login ketika password bernilai undefined', () => {
       req.body = {
         email: 'john@example.com',
         password: undefined,
@@ -555,8 +601,10 @@ describe('validateLogin', () => {
     });
   });
 
-  describe('Edge cases - email format', () => {
-    test('should accept invalid email format (implementation does not validate email format)', () => {
+  // Menguji bahwa format email tidak diperiksa oleh validasi login.
+  describe('Kasus khusus - format email', () => {
+    // Menguji penerimaan email dengan format tidak valid selama nilainya tersedia.
+    test('menerima email dengan format tidak valid karena format tidak diperiksa saat login', () => {
       // Based on the actual implementation, validateLogin only checks if email and password exist
       // It does NOT validate email format like validateRegister does
       req.body = {
@@ -569,7 +617,8 @@ describe('validateLogin', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    test('should accept email without @', () => {
+    // Menguji penerimaan email yang tidak memiliki tanda @.
+    test('menerima email tanpa tanda @', () => {
       req.body = {
         email: 'invalidemail',
         password: 'password123',
@@ -580,7 +629,8 @@ describe('validateLogin', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    test('should accept email without domain', () => {
+    // Menguji penerimaan email yang tidak memiliki nama domain.
+    test('menerima email tanpa domain', () => {
       req.body = {
         email: 'test@',
         password: 'password123',
@@ -592,8 +642,10 @@ describe('validateLogin', () => {
     });
   });
 
-  describe('Edge cases - password format', () => {
-    test('should accept very short password (implementation does not validate password length)', () => {
+  // Menguji bahwa validasi login hanya mensyaratkan password tersedia.
+  describe('Kasus khusus - format password', () => {
+    // Menguji penerimaan password pendek karena panjangnya tidak divalidasi saat login.
+    test('menerima password sangat pendek karena panjangnya tidak diperiksa saat login', () => {
       // Based on the actual implementation, validateLogin only checks if password exists
       // It does NOT validate password length like validateRegister does
       req.body = {
@@ -606,7 +658,8 @@ describe('validateLogin', () => {
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    test('should accept empty string as password if not explicitly empty', () => {
+    // Menguji bahwa password berisi spasi tetap dianggap tersedia.
+    test('menerima password yang berisi spasi karena nilainya tidak kosong', () => {
       // This should fail because empty string is falsy
       req.body = {
         email: 'john@example.com',
