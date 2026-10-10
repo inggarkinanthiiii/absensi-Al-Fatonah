@@ -34,16 +34,22 @@ const JamaahLayout = () => {
       <JamaahSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex-1 bg-gray-50 min-h-screen">
         {/* Mobile header */}
-        <div className="lg:hidden bg-white border-b border-gray-200 p-4 flex items-center gap-4 sticky top-0 z-30">
+        <div className="lg:hidden bg-gradient-to-r from-primary-900 to-primary-800 border-b border-primary-700/50 p-4 flex items-center gap-4 sticky top-0 z-30">
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Buka menu navigasi"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-emerald-50"
           >
-            <Menu size={20} />
+            <img
+              src="/assets/aye.png"
+              alt="Logo Masjid Al-Fatonah"
+              className="h-9 w-9 object-contain"
+            />
           </button>
+
           <div>
-            <h1 className="font-bold text-gray-900 text-sm">Masjid Al-Hikmah</h1>
-            <p className="text-xs text-gray-500">Portal Jamaah</p>
+            <h1 className="font-bold text-white text-sm">Masjid Al-Fatonah</h1>
+            <p className="text-xs text-emerald-200">Portal Jamaah</p>
           </div>
         </div>
         <Outlet />

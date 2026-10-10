@@ -93,14 +93,28 @@ const JamaahAbsensi = () => {
       clearInterval(detectionIntervalRef.current);
       detectionIntervalRef.current = null;
     }
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
+
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
   }, [])
+
+  const handleCloseCamera = () => {
+    stopStream();
+    setAttendanceStep('idle');
+    setSelectedKajian(null);
+    setCapturedPhoto(null);
+    setFaceBox(null);
+    setDetectionMessage('');
+    setLocationValid(false);
+    setLocationData(null);
+  };
+
 
   useEffect(() => {
     fetchActiveKajian();
@@ -178,6 +192,67 @@ const JamaahAbsensi = () => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c * 1000; // Distance in meters
   };
+
+  // ==========================================
+  // HELPER: GET VIDEO RENDER METRICS
+  // ==========================================
+
+  const getVideoRenderMetrics = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) {
+      return null;
+    }
+
+    const container = canvas.parentElement;
+
+    if (!container) {
+      return null;
+    }
+
+    const rect = container.getBoundingClientRect();
+    const containerWidth = rect.width;
+    const containerHeight = rect.height;
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+
+    if (
+      !containerWidth ||
+      !containerHeight ||
+      !videoWidth ||
+      !videoHeight
+    ) {
+      return null;
+    }
+
+    // Samakan dengan object-cover di mobile
+    // dan object-contain di desktop.
+    const isMobile = window.matchMedia(
+      '(max-width: 639px)'
+    ).matches;
+
+    const scaleXRatio = containerWidth / videoWidth;
+    const scaleYRatio = containerHeight / videoHeight;
+
+    const scale = isMobile
+      ? Math.max(scaleXRatio, scaleYRatio)
+      : Math.min(scaleXRatio, scaleYRatio);
+
+    const renderedWidth = videoWidth * scale;
+    const renderedHeight = videoHeight * scale;
+
+    const offsetX = (containerWidth - renderedWidth) / 2;
+    const offsetY = (containerHeight - renderedHeight) / 2;
+
+    return {
+      offsetX,
+      offsetY,
+      scaleX: scale,
+      scaleY: scale,
+    };
+  };
+
 
   const validateLocation = async (kajian) => {
     return new Promise((resolve) => {
@@ -288,10 +363,18 @@ const JamaahAbsensi = () => {
         setAttendanceStep('detecting');
         setDetectionMessage('Mendeteksi wajah...');
 
+
         try {
           const mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width: 640, height: 480 },
+            audio: false,
+            video: {
+              facingMode: 'user',
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              frameRate: { ideal: 30, max: 30 },
+            },
           });
+
 
           streamRef.current = mediaStream;
 
@@ -358,29 +441,27 @@ const JamaahAbsensi = () => {
               // ==============================
 
               if (canvas) {
-                const displaySize = {
-                  width: video.videoWidth,
-                  height: video.videoHeight
-                };
+                // Get video render metrics for proper scaling with object-cover
+                const metrics = getVideoRenderMetrics();
 
-                faceapi.matchDimensions(canvas, displaySize);
+                if (!metrics) {
+                  detectionInProgress = false;
+                  return;
+                }
 
-                const resizedResults = faceapi.resizeResults(
-                  results,
-                  displaySize
-                );
+                const { offsetX, offsetY, scaleX, scaleY } = metrics;
+
+                // Set canvas size to match container
+                const container = canvas.parentElement;
+                const containerRect = container.getBoundingClientRect();
+                canvas.width = containerRect.width;
+                canvas.height = containerRect.height;
 
                 const ctx = canvas.getContext('2d');
-
-                ctx.clearRect(
-                  0,
-                  0,
-                  canvas.width,
-                  canvas.height
-                );
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 // Custom drawing untuk setiap wajah terdeteksi
-                resizedResults.forEach((result) => {
+                results.forEach((result) => {
                   const box = result.detection.box;
                   const landmarks = result.landmarks;
 
@@ -395,32 +476,40 @@ const JamaahAbsensi = () => {
                   ctx.lineWidth = cornerThickness;
                   ctx.lineCap = 'round';
 
+                  // Transform bounding box coordinates to rendered video space
+                  const renderedBox = {
+                    x: box.x * scaleX + offsetX,
+                    y: box.y * scaleY + offsetY,
+                    width: box.width * scaleX,
+                    height: box.height * scaleY,
+                  };
+
                   // Top-left corner
                   ctx.beginPath();
-                  ctx.moveTo(box.x, box.y + cornerSize);
-                  ctx.lineTo(box.x, box.y);
-                  ctx.lineTo(box.x + cornerSize, box.y);
+                  ctx.moveTo(renderedBox.x, renderedBox.y + cornerSize);
+                  ctx.lineTo(renderedBox.x, renderedBox.y);
+                  ctx.lineTo(renderedBox.x + cornerSize, renderedBox.y);
                   ctx.stroke();
 
                   // Top-right corner
                   ctx.beginPath();
-                  ctx.moveTo(box.x + box.width - cornerSize, box.y);
-                  ctx.lineTo(box.x + box.width, box.y);
-                  ctx.lineTo(box.x + box.width, box.y + cornerSize);
+                  ctx.moveTo(renderedBox.x + renderedBox.width - cornerSize, renderedBox.y);
+                  ctx.lineTo(renderedBox.x + renderedBox.width, renderedBox.y);
+                  ctx.lineTo(renderedBox.x + renderedBox.width, renderedBox.y + cornerSize);
                   ctx.stroke();
 
                   // Bottom-left corner
                   ctx.beginPath();
-                  ctx.moveTo(box.x, box.y + box.height - cornerSize);
-                  ctx.lineTo(box.x, box.y + box.height);
-                  ctx.lineTo(box.x + cornerSize, box.y + box.height);
+                  ctx.moveTo(renderedBox.x, renderedBox.y + renderedBox.height - cornerSize);
+                  ctx.lineTo(renderedBox.x, renderedBox.y + renderedBox.height);
+                  ctx.lineTo(renderedBox.x + cornerSize, renderedBox.y + renderedBox.height);
                   ctx.stroke();
 
                   // Bottom-right corner
                   ctx.beginPath();
-                  ctx.moveTo(box.x + box.width - cornerSize, box.y + box.height);
-                  ctx.lineTo(box.x + box.width, box.y + box.height);
-                  ctx.lineTo(box.x + box.width, box.y + box.height - cornerSize);
+                  ctx.moveTo(renderedBox.x + renderedBox.width - cornerSize, renderedBox.y + renderedBox.height);
+                  ctx.lineTo(renderedBox.x + renderedBox.width, renderedBox.y + renderedBox.height);
+                  ctx.lineTo(renderedBox.x + renderedBox.width, renderedBox.y + renderedBox.height - cornerSize);
                   ctx.stroke();
 
                   // ==============================
@@ -432,9 +521,21 @@ const JamaahAbsensi = () => {
                       ctx.strokeStyle = greenColor;
                       ctx.lineWidth = 2;
                       ctx.beginPath();
-                      ctx.moveTo(jawOutline[0].x, jawOutline[0].y);
+
+                      // Transform first point
+                      const firstPoint = jawOutline[0];
+                      ctx.moveTo(
+                        firstPoint.x * scaleX + offsetX,
+                        firstPoint.y * scaleY + offsetY
+                      );
+
+                      // Transform and draw remaining points
                       for (let i = 1; i < jawOutline.length; i++) {
-                        ctx.lineTo(jawOutline[i].x, jawOutline[i].y);
+                        const point = jawOutline[i];
+                        ctx.lineTo(
+                          point.x * scaleX + offsetX,
+                          point.y * scaleY + offsetY
+                        );
                       }
                       ctx.stroke();
                     }
@@ -449,7 +550,13 @@ const JamaahAbsensi = () => {
 
                     allLandmarks.forEach((point) => {
                       ctx.beginPath();
-                      ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+                      ctx.arc(
+                        point.x * scaleX + offsetX,
+                        point.y * scaleY + offsetY,
+                        2,
+                        0,
+                        2 * Math.PI
+                      );
                       ctx.fill();
                     });
                   }
@@ -541,7 +648,7 @@ const JamaahAbsensi = () => {
               const elapsedTime =
                 Date.now() - faceDetectedAt;
 
-              const requiredTime = 5000; // 5 detik
+              const requiredTime = 1000; // 1 detik
 
               const remainingTime =
                 Math.ceil(
@@ -709,7 +816,7 @@ const JamaahAbsensi = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-2 py-6 pb-24 sm:px-6 sm:py-8 lg:px-8 lg:pb-8">
         {/* Header */}
         <div className="mb-7 sm:mb-9">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary-600">Kehadiran Anda</p>
@@ -872,7 +979,7 @@ const JamaahAbsensi = () => {
         )}
 
         {(attendanceStep === 'location' || attendanceStep === 'detecting' || attendanceStep === 'recognized' || attendanceStep === 'confirmed' || attendanceStep === 'success') && (
-          <div className="mx-auto w-full max-w-2xl">
+          <div className="mx-auto w-full lg:max-w-2xl">
             <Card className="!rounded-3xl !border-slate-200/80 !bg-white !p-0 shadow-sm sm:shadow-md">
               {/* Header */}
               <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
@@ -923,17 +1030,19 @@ const JamaahAbsensi = () => {
 
               {/* Camera / Face Detection */}
               {attendanceStep === 'detecting' && (
-                <div className="px-4 py-5 sm:px-6 sm:py-6">
+                <div className="px-2 py-5 sm:px-6 sm:py-6">
                   <div className="mb-4">
                     <h3 className="text-center text-lg font-bold text-slate-950">Verifikasi Wajah</h3>
                     <p className="text-center text-sm text-slate-500">Posisikan wajah Anda di dalam area</p>
                   </div>
 
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-slate-950 shadow-xl ring-1 ring-slate-900/10">
+                  <div className="relative aspect-[3/4] lg:aspect-[4/3] overflow-hidden rounded-3xl bg-slate-950 shadow-xl ring-1 ring-slate-900/10 max-sm:fixed max-sm:inset-0 max-sm:z-[100] max-sm:!m-0 max-sm:!h-[100dvh] max-sm:!w-screen max-sm:!rounded-none">
                     {/* Kamera */}
                     <video
                       ref={videoRef}
-                      className="w-full h-full object-cover"
+
+                      className="w-full h-full object-cover sm:object-contain"
+
                       autoPlay
                       playsInline
                       muted
@@ -942,6 +1051,13 @@ const JamaahAbsensi = () => {
                       ref={canvasRef}
                       className="absolute top-0 left-0 w-full h-full pointer-events-none"
                     />
+                    <button
+                      type="button"
+                      onClick={handleCloseCamera}
+                      className="absolute top-4 right-4 z-30 rounded-full bg-black/70 px-4 py-3 text-white"
+                    >
+                      Tutup ✕
+                    </button>
 
                     {/* Label Wajah Terdeteksi */}
                     {faceBox && (

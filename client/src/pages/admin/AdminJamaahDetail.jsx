@@ -98,7 +98,7 @@ const AdminJamaahDetail = () => {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
           <p className="mt-2 text-gray-500">Loading...</p>
@@ -109,7 +109,7 @@ const AdminJamaahDetail = () => {
 
   if (error || !jamaah) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <div className="text-center py-12">
           <p className="text-gray-600">Data jamaah tidak ditemukan</p>
           <Link to="/admin/jamaah" className="text-primary-600 hover:underline mt-4 inline-block">
@@ -123,24 +123,24 @@ const AdminJamaahDetail = () => {
 
 
   return (
-    <div className="p-8">
-      <Link to="/admin/jamaah" className="flex items-center gap-2 text-primary-600 hover:underline mb-6">
-        <ArrowLeft size={20} />
-        Kembali ke Data Jamaah
+    <div className="w-full min-w-0 max-w-full box-border overflow-x-clip p-4 sm:p-6 lg:p-8">
+      <Link to="/admin/jamaah" className="mb-6 flex w-fit max-w-full items-start gap-2 text-sm text-primary-600 hover:underline sm:text-base">
+        <ArrowLeft size={20} className="shrink-0" />
+        <span className="break-words">Kembali ke Data Jamaah</span>
       </Link>
 
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Detail Jamaah</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-800 sm:mb-8 sm:text-3xl">Detail Jamaah</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="lg:col-span-1">
+      <div className="mb-6 grid w-full min-w-0 max-w-full grid-cols-1 gap-4 sm:mb-8 sm:gap-6 lg:grid-cols-3">
+        <Card className="min-w-0 !p-4 sm:!p-6 lg:col-span-1">
           <div className="text-center">
             <div className="relative inline-block">
               <div
                 onClick={() => faceData?.foto && setShowFacePhotoPreview(true)}
-                className={`w-32 h-32 ${faceData?.foto
-                    ? 'bg-gray-100 cursor-pointer hover:bg-gray-200'
-                    : 'bg-primary-100'
-                  } rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden transition-colors`}
+                className={`mx-auto h-24 w-24 sm:h-32 sm:w-32 ${faceData?.foto
+                  ? 'bg-gray-100 cursor-pointer hover:bg-gray-200'
+                  : 'bg-primary-100'
+                  } mb-4 flex items-center justify-center overflow-hidden rounded-full transition-colors`}
               >
                 {faceData?.foto ? (
                   <img
@@ -149,7 +149,7 @@ const AdminJamaahDetail = () => {
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <span className="text-4xl font-bold text-primary-600">
+                  <span className="text-3xl font-bold text-primary-600 sm:text-4xl">
                     {jamaah.nama.charAt(0)}
                   </span>
                 )}
@@ -158,7 +158,7 @@ const AdminJamaahDetail = () => {
                 <p className="text-xs text-gray-400 mt-1">Klik untuk memperbesar</p>
               )}
             </div>
-            <h2 className="text-2xl font-bold text-gray-800">{jamaah.nama}</h2>
+            <h2 className="break-words text-xl font-bold text-gray-800 sm:text-2xl">{jamaah.nama}</h2>
             <Badge variant="success" className="mt-2">{jamaah.status}</Badge>
             <div className="mt-4">
               <p className="text-sm text-gray-600">Foto Wajah</p>
@@ -171,55 +171,55 @@ const AdminJamaahDetail = () => {
           </div>
         </Card>
 
-        <Card className="lg:col-span-2">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Informasi Pribadi</h3>
+        <Card className="min-w-0 !p-4 sm:!p-6 lg:col-span-2">
+          <h3 className="mb-4 text-lg font-semibold text-gray-800 sm:text-xl">Informasi Pribadi</h3>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Mail className="text-gray-400 mt-1" size={20} />
-              <div>
+              <Mail className="mt-1 shrink-0 text-gray-400" size={20} />
+              <div className="min-w-0">
                 <p className="text-sm text-gray-600">Email</p>
-                <p className="font-medium">{jamaah.email}</p>
+                <p className="break-all font-medium">{jamaah.email}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Phone className="text-gray-400 mt-1" size={20} />
-              <div>
+              <Phone className="mt-1 shrink-0 text-gray-400" size={20} />
+              <div className="min-w-0">
                 <p className="text-sm text-gray-600">Telepon</p>
-                <p className="font-medium">{jamaah.telepon}</p>
+                <p className="break-words font-medium">{jamaah.telepon}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <MapPin className="text-gray-400 mt-1" size={20} />
-              <div>
+              <MapPin className="mt-1 shrink-0 text-gray-400" size={20} />
+              <div className="min-w-0">
                 <p className="text-sm text-gray-600">Alamat</p>
-                <p className="font-medium">{jamaah.alamat}</p>
+                <p className="break-words font-medium">{jamaah.alamat}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Calendar className="text-gray-400 mt-1" size={20} />
-              <div>
+              <Calendar className="mt-1 shrink-0 text-gray-400" size={20} />
+              <div className="min-w-0">
                 <p className="text-sm text-gray-600">Tanggal Registrasi</p>
-                <p className="font-medium">{jamaah.tanggalRegistrasi}</p>
+                <p className="break-words font-medium">{jamaah.tanggalRegistrasi}</p>
               </div>
             </div>
           </div>
         </Card>
       </div>
 
-      <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <CheckSquare className="text-primary-600" size={24} />
-          <h3 className="text-xl font-semibold text-gray-800">Riwayat Absensi</h3>
+      <Card className="min-w-0 !p-4 sm:!p-6">
+        <div className="mb-4 flex min-w-0 items-center gap-2">
+          <CheckSquare className="shrink-0 text-primary-600" size={24} />
+          <h3 className="min-w-0 break-words text-lg font-semibold text-gray-800 sm:text-xl">Riwayat Absensi</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[640px]">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Tanggal</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Waktu</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Kajian</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700">Metode</th>
+                <th className="px-2 py-3 text-left font-semibold text-gray-700 sm:px-4">Tanggal</th>
+                <th className="px-2 py-3 text-left font-semibold text-gray-700 sm:px-4">Waktu</th>
+                <th className="px-2 py-3 text-left font-semibold text-gray-700 sm:px-4">Kajian</th>
+                <th className="px-2 py-3 text-left font-semibold text-gray-700 sm:px-4">Status</th>
+                <th className="px-2 py-3 text-left font-semibold text-gray-700 sm:px-4">Metode</th>
               </tr>
             </thead>
             <tbody>
@@ -232,13 +232,13 @@ const AdminJamaahDetail = () => {
                 const kajian = kajianMap[kajianId];
                 return (
                   <tr key={absensi.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4">{absensi.tanggal}</td>
-                    <td className="py-3 px-4">{absensi.waktu}</td>
-                    <td className="py-3 px-4">{kajian?.judul || 'Unknown'}</td>
-                    <td className="py-3 px-4">
+                    <td className="px-2 py-3 sm:px-4">{absensi.tanggal}</td>
+                    <td className="px-2 py-3 sm:px-4">{absensi.waktu}</td>
+                    <td className="break-words px-2 py-3 sm:px-4">{kajian?.judul || 'Unknown'}</td>
+                    <td className="px-2 py-3 sm:px-4">
                       <Badge variant="success">{absensi.status}</Badge>
                     </td>
-                    <td className="py-3 px-4">{absensi.metode}</td>
+                    <td className="px-2 py-3 sm:px-4">{absensi.metode}</td>
                   </tr>
                 );
               })}
@@ -256,14 +256,15 @@ const AdminJamaahDetail = () => {
       {/* Face Photo Preview Modal */}
       {showFacePhotoPreview && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="relative">
+          <div className="relative w-[min(24rem,calc(100vw-2rem))]">
             <button
               onClick={() => setShowFacePhotoPreview(false)}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300"
+              className="absolute right-3 top-3 z-10 rounded-full bg-black/60 p-2 text-white hover:bg-black/80"
+              aria-label="Tutup pratinjau foto"
             >
-              <X size={32} />
+              <X size={24} />
             </button>
-            <div className="bg-gray-100 rounded-lg w-96 h-96 flex items-center justify-center overflow-hidden">
+            <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
               {faceData?.foto && (
                 <img
                   src={faceData.foto}

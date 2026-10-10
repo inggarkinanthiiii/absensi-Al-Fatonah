@@ -99,6 +99,7 @@ const JamaahRegistrasiWajah = () => {
   // HELPER: GET VIDEO RENDER METRICS
   // ==========================================
 
+
   const getVideoRenderMetrics = () => {
     const video = videoRef.current;
     const container = cameraContainerRef.current;
@@ -114,43 +115,54 @@ const JamaahRegistrasiWajah = () => {
     const intrinsicWidth = video.videoWidth;
     const intrinsicHeight = video.videoHeight;
 
-    if (!intrinsicWidth || !intrinsicHeight) {
+    if (
+      !intrinsicWidth ||
+      !intrinsicHeight ||
+      !containerWidth ||
+      !containerHeight
+    ) {
       return null;
     }
 
     const videoAspectRatio = intrinsicWidth / intrinsicHeight;
     const containerAspectRatio = containerWidth / containerHeight;
 
-    let renderedWidth;
-    let renderedHeight;
+    // Mobile menggunakan object-cover.
+    // Desktop (sm ke atas) menggunakan object-contain.
+    const isMobile = window.matchMedia('(max-width: 639px)').matches;
 
-    // Calculate rendered dimensions based on object-contain behavior
-    if (videoAspectRatio > containerAspectRatio) {
-      // Video is wider than container - fit to width
-      renderedWidth = containerWidth;
-      renderedHeight = containerWidth / videoAspectRatio;
+    let scale;
+    let offsetX;
+    let offsetY;
+
+    if (isMobile) {
+      // object-cover: video memenuhi layar, sebagian gambar bisa terpotong.
+      scale = Math.max(
+        containerWidth / intrinsicWidth,
+        containerHeight / intrinsicHeight
+      );
+
+      offsetX = (containerWidth - intrinsicWidth * scale) / 2;
+      offsetY = (containerHeight - intrinsicHeight * scale) / 2;
     } else {
-      // Video is taller than container - fit to height
-      renderedHeight = containerHeight;
-      renderedWidth = containerHeight * videoAspectRatio;
+      // object-contain: seluruh gambar terlihat.
+      scale = Math.min(
+        containerWidth / intrinsicWidth,
+        containerHeight / intrinsicHeight
+      );
+
+      offsetX = (containerWidth - intrinsicWidth * scale) / 2;
+      offsetY = (containerHeight - intrinsicHeight * scale) / 2;
     }
 
-    // Calculate offset to center video in container
-    const offsetX = (containerWidth - renderedWidth) / 2;
-    const offsetY = (containerHeight - renderedHeight) / 2;
-
-    // Use single scale factor to maintain aspect ratio
-    const scale = renderedWidth / intrinsicWidth;
-
     return {
-      renderedWidth,
-      renderedHeight,
       offsetX,
       offsetY,
       scaleX: scale,
       scaleY: scale,
     };
   };
+
 
   // ==========================================
   // LOAD FACE-API MODELS
@@ -229,15 +241,20 @@ const JamaahRegistrasiWajah = () => {
       setFaceStatus('Mencari wajah...');
       setFaceBox(null);
 
+
       const mediaStream =
         await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: 'user',
             width: {
-              ideal: 640,
+              ideal: 1280,
             },
             height: {
-              ideal: 480,
+              ideal: 720,
+            },
+            frameRate: {
+              ideal: 30,
+              max: 30,
             },
           },
           audio: false,
@@ -643,6 +660,26 @@ const JamaahRegistrasiWajah = () => {
 
   // Retake photo
 
+
+  const handleStopCapture = () => {
+    if (detectionIntervalRef.current) {
+      clearInterval(detectionIntervalRef.current);
+      detectionIntervalRef.current = null;
+    }
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    setStream(null);
+    setIsCapturing(false);
+    setCapturedImage(null);
+    setFaceBox(null);
+    setRegistrationStatus('idle');
+    setFaceStatus('Mencari wajah...');
+    setError('');
+  };
+
   const handleRetake = () => {
     setCapturedImage(null);
     setRegistrationStatus('idle');
@@ -651,6 +688,8 @@ const JamaahRegistrasiWajah = () => {
     setFaceBox(null);
     setFaceStatus('Mencari wajah...');
   };
+
+
 
   // Save registration
 
@@ -703,7 +742,7 @@ const JamaahRegistrasiWajah = () => {
   // Render
 
   return (
-    <div className="p-8">
+    <div className="px-3 py-5 sm:p-6 lg:p-8">
       {registrationStatus !==
         'registered' ? (
         <>
@@ -722,11 +761,11 @@ const JamaahRegistrasiWajah = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-8">
 
             {/* Instructions */}
 
-            <Card>
+            <Card className="order-2 lg:order-1">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
                 Instruksi
               </h2>
@@ -836,12 +875,30 @@ const JamaahRegistrasiWajah = () => {
 
             {/* Camera */}
 
-            <Card>
+
+            <Card
+              className={`order-1 lg:order-2 ${registrationStatus === 'success'
+                ? ''
+                : '!px-1 !py-4 sm:!p-6'
+                }`}
+            >
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
                 Area Kamera
               </h2>
 
-              <div className="bg-gray-100 rounded-lg aspect-video flex items-center justify-center mb-4 relative overflow-hidden">
+
+
+              <div
+                className={`flex items-center justify-center relative overflow-hidden ${registrationStatus === 'capturing'
+                  ?
+                  'max-sm:fixed max-sm:inset-0 max-sm:z-[100] max-sm:h-[100dvh] max-sm:w-screen max-sm:!m-0 max-sm:rounded-none max-sm:bg-black'
+
+                  : registrationStatus === 'success'
+                    ? 'mb-4 rounded-lg aspect-video bg-gray-100'
+                    : 'mb-4 rounded-lg aspect-[4/3] lg:aspect-video bg-gray-100'
+                  }`}
+              >
+
 
                 {/* Idle state */}
 
@@ -871,7 +928,7 @@ const JamaahRegistrasiWajah = () => {
                       {/* VIDEO */}
                       <video
                         ref={videoRef}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover sm:object-contain"
                         autoPlay
                         playsInline
                         muted
@@ -882,6 +939,15 @@ const JamaahRegistrasiWajah = () => {
                         ref={canvasRef}
                         className="absolute inset-0 w-full h-full pointer-events-none"
                       />
+
+                      <button
+                        type="button"
+                        onClick={handleStopCapture}
+                        className="absolute top-4 right-4 z-30 rounded-full bg-black/70 px-4 py-3 text-white"
+                      >
+                        Tutup ✕
+                      </button>
+
 
                       {/* Face detected label */}
 

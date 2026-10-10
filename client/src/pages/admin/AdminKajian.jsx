@@ -192,7 +192,12 @@ const AdminKajian = () => {
     try {
       setLoading(true);
       const response = await kajianApi.getAllKajian();
-      setKajianList(response.data.data.kajian);
+      const kajian = response.data.data.kajian;
+      setKajianList(
+        [...kajian].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      );
     } catch (error) {
       console.error('Error fetching kajian list:', error);
     } finally {
