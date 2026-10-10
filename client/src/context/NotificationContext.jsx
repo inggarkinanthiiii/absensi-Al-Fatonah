@@ -16,12 +16,21 @@ export const NotificationProvider = ({ children }) => {
     // Jangan membuat koneksi Socket.IO sebelum user tersedia
     if (!user) return;
 
-    const newSocket = io(
-      import.meta.env.VITE_API_URL || 'http://localhost:5000',
-      {
-        transports: ['websocket', 'polling'],
-      }
-    );
+    const apiUrl =
+      import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+    const socketUrl = apiUrl.replace(/\/api\/?$/, '');
+
+    const newSocket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+    });
+    newSocket.on('connect', () => {
+      console.log('Socket.IO terhubung:', newSocket.id);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket.IO gagal terhubung:', error.message);
+    });
 
     setSocket(newSocket);
 
