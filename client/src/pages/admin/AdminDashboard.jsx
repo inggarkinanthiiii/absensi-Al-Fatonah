@@ -256,8 +256,14 @@ const AdminDashboard = () => {
           {recentAttendance.length > 0 ? (
             <div className="space-y-3">
               {recentAttendance.map((attendance) => {
-                const jamaah = userMap[attendance.userId];
-                const kajian = kajianMap[attendance.kajianId];
+                const userId = attendance.userId?._id || attendance.userId;
+                const kajianId = attendance.kajianId?._id || attendance.kajianId;
+                const jamaah = attendance.userId?.nama
+                  ? attendance.userId
+                  : userMap[String(userId)];
+                const kajian = attendance.kajianId?.judul
+                  ? attendance.kajianId
+                  : kajianMap[String(kajianId)];
                 return (
                   <div key={attendance._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                     <div>
