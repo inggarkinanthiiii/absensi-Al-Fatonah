@@ -8,6 +8,41 @@ import { kajianApi } from '../../api/kajianApi';
 import { faceApi } from '../../api/faceApi';
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, CheckSquare, Camera, X } from 'lucide-react';
 
+const formatRegistrationDate = (value) => {
+  if (!value) return '-';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};
+
+const formatAttendanceDate = (value) => {
+  if (!value) return '-';
+
+  const dateKey = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)
+    ? value.slice(0, 10)
+    : '';
+
+  if (dateKey) {
+    return new Intl.DateTimeFormat('id-ID', { timeZone: 'UTC' }).format(
+      new Date(`${dateKey}T00:00:00.000Z`)
+    );
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+
+  return new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta' }).format(date);
+};
+
 const AdminJamaahDetail = () => {
   const { id } = useParams();
 
@@ -199,7 +234,7 @@ const AdminJamaahDetail = () => {
               <Calendar className="mt-1 shrink-0 text-gray-400" size={20} />
               <div className="min-w-0">
                 <p className="text-sm text-gray-600">Tanggal Registrasi</p>
-                <p className="break-words font-medium">{jamaah.tanggalRegistrasi}</p>
+                <p className="break-words font-medium">{formatRegistrationDate(jamaah.tanggalRegistrasi)}</p>
               </div>
             </div>
           </div>
@@ -232,7 +267,7 @@ const AdminJamaahDetail = () => {
                 const kajian = kajianMap[kajianId];
                 return (
                   <tr key={absensi.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-2 py-3 sm:px-4">{absensi.tanggal}</td>
+                    <td className="px-2 py-3 sm:px-4">{formatAttendanceDate(absensi.tanggal)}</td>
                     <td className="px-2 py-3 sm:px-4">{absensi.waktu}</td>
                     <td className="break-words px-2 py-3 sm:px-4">{kajian?.judul || 'Unknown'}</td>
                     <td className="px-2 py-3 sm:px-4">
