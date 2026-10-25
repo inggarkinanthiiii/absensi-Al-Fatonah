@@ -6,6 +6,22 @@ import useNotification from '../../hooks/useNotification';
 import { faceApi } from '../../api/faceApi';
 import { Mail, Phone, MapPin, Calendar, Edit, LogOut, Camera, X } from 'lucide-react';
 
+const formatRegistrationDate = (value) => {
+  if (!value) return '-';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};
+
 const JamaahProfil = () => {
   const { user, logout, updateProfile, changePassword } = useAuth();
   const [faceData, setFaceData] = useState(null);
@@ -285,7 +301,7 @@ const JamaahProfil = () => {
               <Calendar className="text-gray-400 mt-1" size={20} />
               <div>
                 <p className="text-sm text-gray-600">Tanggal Registrasi</p>
-                <p className="font-medium">{user?.tanggalRegistrasi || '01 Januari 2024'}</p>
+                <p className="font-medium">{formatRegistrationDate(user?.tanggalRegistrasi)}</p>
               </div>
             </div>
           </div>
