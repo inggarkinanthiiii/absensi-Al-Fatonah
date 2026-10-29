@@ -58,19 +58,48 @@ export const faceDataController = {
       const queryAllEnd = Date.now();
       console.log(`[FACE-REG] Query all active faces (${allFaceData.length} records): ${queryAllEnd - queryAllStart} ms`);
 
-      // Duplicate check loop
+
+      // Duplicate check loop - diagnostic logging
       const duplicateCheckStart = Date.now();
+      const threshold = 0.6; // Sesuaikan dengan threshold yang sedang digunakan
+
       let duplicateCheckCount = 0;
+      let skippedSameUserCount = 0;
+      let minDistance = Infinity;
+      let closestCandidate = null;
+
+      console.log(`[FACE-REG] Duplicate threshold: ${threshold}`);
+      console.log(`[FACE-REG] Active face records: ${allFaceData.length}`);
+
       for (const existingFace of allFaceData) {
-        // Lewati FaceData milik user yang sedang login
+        // Lewati data wajah milik user yang sedang login
         if (existingFace.userId.toString() === userId.toString()) {
+          skippedSameUserCount++;
           continue;
         }
 
         duplicateCheckCount++;
-        const distance = euclideanDistance(descriptor, existingFace.descriptor);
 
-        if (distance <= 0.8) {
+        const distance = euclideanDistance(
+          descriptor,
+          existingFace.descriptor
+        );
+
+        // Simpan kandidat dengan jarak terkecil
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestCandidate = existingFace;
+        }
+
+        console.log(
+          `[FACE-REG] Candidate comparison: distance=${distance.toFixed(4)}, duplicate=${distance <= threshold}`
+        );
+
+        if (distance <= threshold) {
+          console.log(
+            `[FACE-REG] DUPLICATE DETECTED: distance=${distance.toFixed(4)}, threshold=${threshold}`
+          );
+
           return errorResponse(
             res,
             'Wajah sudah terdaftar pada akun lain',
@@ -78,8 +107,13 @@ export const faceDataController = {
           );
         }
       }
+
       const duplicateCheckEnd = Date.now();
-      console.log(`[FACE-REG] Duplicate check (${duplicateCheckCount} comparisons): ${duplicateCheckEnd - duplicateCheckStart} ms`);
+
+      console.log(
+        `[FACE-REG] Duplicate check summary: comparisons=${duplicateCheckCount}, skippedSameUser=${skippedSameUserCount}, minDistance=${Number.isFinite(minDistance) ? minDistance.toFixed(4) : 'N/A'}, closestCandidate=${closestCandidate ? 'exists' : 'none'}, duration=${duplicateCheckEnd - duplicateCheckStart} ms`
+      );
+
 
       // Insert to database
       const insertStart = Date.now();
