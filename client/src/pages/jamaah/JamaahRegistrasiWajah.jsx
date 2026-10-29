@@ -521,7 +521,7 @@ const JamaahRegistrasiWajah = () => {
 
             const elapsedTime = Date.now() - faceDetectedAt;
 
-            const requiredTime = 1000;
+            const requiredTime = 3000;
 
             const remainingTime = Math.max(
               0,
