@@ -61,7 +61,7 @@ export const faceDataController = {
 
       // Duplicate check loop - diagnostic logging
       const duplicateCheckStart = Date.now();
-      const threshold = 0.6; // Sesuaikan dengan threshold yang sedang digunakan
+      const threshold = 0.4; // Sesuaikan dengan threshold yang sedang digunakan
 
       let duplicateCheckCount = 0;
       let skippedSameUserCount = 0;
