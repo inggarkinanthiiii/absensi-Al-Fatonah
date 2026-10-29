@@ -97,6 +97,10 @@ export const faceDataController = {
 
         if (distance <= threshold) {
           console.log(
+            `[FACE-REG] Duplicate candidate userId: ${existingFace.userId}`
+          );
+
+          console.log(
             `[FACE-REG] DUPLICATE DETECTED: distance=${distance.toFixed(4)}, threshold=${threshold}`
           );
 
