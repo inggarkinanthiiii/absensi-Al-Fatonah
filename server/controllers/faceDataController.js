@@ -70,7 +70,7 @@ export const faceDataController = {
         duplicateCheckCount++;
         const distance = euclideanDistance(descriptor, existingFace.descriptor);
 
-        if (distance <= 0.6) {
+        if (distance <= 0.5) {
           return errorResponse(
             res,
             'Wajah sudah terdaftar pada akun lain',
